@@ -16,4 +16,62 @@ MAC 地址的典型应用主要有：
 
 地址老化机制：在动态学习到一个新的mac地址时，同时也开启了他的老化时间计时器，如果在他被学习到过后的那段老化时间内，他没有再被使用到，那么时间一到，就会被从mac地址表中删除。
 
-未完，待续。。。。
+MAC地址的配置：
+	全局MAC地址学习能力：mac-address-learning{enable|disable}  此能力默认开启，在全局模式配置。
+
+	接口MAC地址学习能力：mac-address-learning  此功能默认开启，在接口模式配置，此外接口必须是二层口（数据链路层）。
+
+	老化时间配置：mac-address-table aging-time (value) value是时间值，老化时间默认为300秒。在全局模式下配置。
+
+	查看动态mac地址学习信息：show mac-address-table dynamic{address|interface|vlan}
+
+	查看动态mac地址老化时间：show mac-address-table aging-time
+
+	设置过滤地址：mac-address-table filtering （mac-address vlan vlan-id）mac-address指要删除的mac地址，vlan-id指删除的mac所在的vlan。此能力默认不开启。
+
+	配置MAC地址变化通知：snmp-server host host-addr traps[version{1|2c|3[auth|noauth|priv]}] community-string ，默认不配置此项。
+	host-addr:接收的主机ip
+	version{1|2c|3[auth|noauth|priv]}:指明发送那种版本的snmp trp报文，对v3版本还可以指定是否认证以及安全参数。
+	community-string：认证名
+
+	配置上一步的前提-发送trap功能：snmp-server enable traps 默认不配置此项。
+
+	打开全局MAC地址通知开关：mac-address-table notification  默认此功能不打开。
+
+	配置接口mac通知开关：snmp trap mac-notification{added|removed}
+
+	配置端口MAC地址限制数量：max-dynamic-mac-count （count）
+	max-dynamic-mac-count exceed-action {forward | discard}
+	默认可以学习无数个。
+	count:数量
+	{forward | discard}：超过数量的报文动作{转发|丢弃}
+
+	配置VLAN下mac地址学习数：同上。
+
+	清除动态地址表项：clear mac-address-table dynamic [ address mac-address ] 
+	[ interface interface-id ] [ vlan vlan-id ]
+
+	查看 MAC 地址表：show mac-address-table { dynamic | static | filter } 
+	[ address mac-address ] [ interface interface-id ] [ vlan vlan-id ]
+
+	查看动态地址个数限制情况：show mac-address-table max-dynamic-mac-count
+
+	查看地址变化通知配置及历史记录表：show mac-address-table notification 
+	[ interface [ interface-id ] | history ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
