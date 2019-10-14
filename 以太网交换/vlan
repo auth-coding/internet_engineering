@@ -1,0 +1,33 @@
+vlan :  虚拟局域网（Virtual Local Area Network）的简称，它是在一个物理网络上划分出来的逻辑网络。这个网络对应于ISO模型的第二层网络,与普通物理网络具有相同属性,
+		却不像普通物理网络一样，会受到地域限制。二层的单播、多播、广播报文只会在同一个vlan中转发，不会跑到其他vlan中去。
+		
+native-vlan:凡是在trunk口上收到的untag帧都归属的vlan。（即凡是通过native-vlan的帧都是以untag的方式进行转发的。）
+
+典型应用：	
+		1、将网络划分为多个vlan，实现二层隔离。
+		2、不同的vlan之间配置ip，实现不同子网之间的三层互联。
+
+vlan成员类型：
+		1、access
+			一个access口只能属于一个vlan，只能转发指定vlan的报文，其所属的vlan口需要通过手工指定。
+		2、trunk
+			默认情况下，设备trunk口属于本设备的所有vlan口，能够转发本设备所有vlan的帧。但是可以手工配置许可列表（allowed-vlans）来加以限制，是指只能转发许可列表中的vlan的帧。
+			在配置trunk口时必须指定native-vlan 。默认情况下trunk口的指定native-vlan是vlan1。trunk口的默认vlan（native-vlan）是以untag形式来转发帧。
+		3、hybrid
+			默认情况下，设备的hybrid口属于本设备所有vlan，能够转发所有vlan口的帧。当然也可以像trunk口一样配置许可列表（allowed-vlans）来限制转发的vlan。
+			并且hybrid被允许使用untag的方式转发多个vlan的帧，而trunk口只允许该接口的默认vlan（native-vlan）以untag的方式转发帧。
+			这是唯一与trunk口区别的地方，hybrid口被允许剥掉帧的tag来帧转发，是加强版的trunk口。	
+		4、uplink
+			uplink口语trunk口类似，不同之处在于uplink口可以使用tag方式来转发native-vlan的帧，且uplink口只能转发tag帧。
+			
+	三种接口的总结：trunk、hybrid、uplink三类接口里面以trunk口（属于本设备所有vlan，可设置vlan许可列表，允许且只允许其默认vlan---native-vlan以UNtag的方式转发帧，
+					其余vlan都以tag方式转发）为标准，hybrid口是加强版的trunk口，即hybrid口可以允许使用untag的方式来转发很多vlan的帧，trunk口只允许在native-vlan这么做。
+					而uplink口呢则是不管什么vlan都得以tag的方式来转发帧，即使是native-vlan也是以tag方式来转发帧。
+					
+
+netconf下发vlan行为：默认情况下，trunk口是属于设备中的所有vlan的，但是也可以设置vlan许可列表，只有在列表里的vlan才能加入这个口。那么此时
+					 控制器通过netconf下发的创建或删除vlan的命令并执行所创建或删除的vlan是与trunk不相干的，是独立的。
+					 即只有在trunk口的许可列表里有这个vlan时才能加入或删除该trunk口，否则不行。但是在配置了这个controller vlan trunk allowed命令以后二者就会变得相关联了。
+			
+独立口的继承vlan列表：对于trunk口与uplink口而言，当成员口变成独立口时，接口会继承聚合口所设置的继承vlan列表中的vlan。而hybrid口不仅会继承聚合口继承列表里的vlan，还会继承
+					  聚合口的hybrid tag vlan列表里的vlan。通俗讲就是老子挂了，儿子继承老子规定好的遗产。
