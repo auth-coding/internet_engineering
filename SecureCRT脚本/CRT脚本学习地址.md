@@ -1,0 +1,1 @@
+SecureCRT脚本学习地址：https://www.cnblogs.com/OnOwnRoad/tag/SecureCrt%E8%84%9A%E6%9C%AC/
