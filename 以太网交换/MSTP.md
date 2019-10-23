@@ -21,15 +21,25 @@
 		树型结构使网络中的设备通过交换BPDU(Bridge Protocol Data Units)帧来建立的，这些帧
 		是以组播地址（01-80-C2-00-00-00）
 		
-				
-				
-				
-				
-				
-				
-				
-				
-				
+BPDU(Bridge Protocol Data Units-网桥协议数据单元)：
+		由根桥ID、根路劲花费、桥ID、端口ID、message time（报文已存活时间）以及Forward-Delay time、
+		Hello time、max-age time三个定时器参数组成，是使用生成树协议产生生成树的重要工具，网桥之间
+		通过传输BPDU帧来获取建立最佳树型拓扑结构的信息（即 Bridege ID、端口ID、根路径花费）。
+		
+		Forward-Delay time：端口状态转换时间间隔，端口从listening转向learning,或者从learning转向forwarding.
+		Hello Time：端口发送BPDU报文的时间间隔
+		MAX-age Time：BPDU报文的最大存活时间
+		注：IST与MSTI已经不再使用上面的定时器来计算BPDU是否超时了。而是使用HOT COUNT,每经过一个设备其值就会减一
+		直到0，该报文就会被丢弃。
+		
+BPDU交流产生的结果：
+		1、网络中选定一个网桥作为根桥（Root Bridge）
+		2、每个lan都有了指派网桥（Designated Bridge），位于该LAN与根桥的最短路劲中。指派网桥
+		与LAN相连接的端口称为指派端口（Designated Port）。
+		3、除根网桥外的每个网桥都会产生一个根口，指向将本网桥作为指派网桥的上一个网桥。提供了
+		到根网桥的最短路劲。
+		4、每个网桥都计算出了到根网桥的最短路径
+		5、根口与指派端口都进入了forwarding状态。	
 	
 生成树协议（STP-Spanning Tree Protocol）：
 		生成树协议是一种二层管理协议，通过选择性的堵塞网络中的冗余链路来消除环路，同时提供
@@ -54,7 +64,23 @@
 		
 多生成树协议（MSTP-Multiple Spanning Tree Protocol）：
 		多生成树协议是在前两者的基础上发展而来，弥补了前两者的缺点，不仅能够快速收敛，还能实现网络
-		中不同vlan之间流量转发，这也就为冗余链路提供了更好的负载均衡机制。
+		中本该流向另一个vlan的流量在遇到线路discarding时可以流向其他vlan进行流量转发，保障业务的正常进行。
+		这也就为冗余链路提供了更好的负载均衡机制。
+	
+多生成树原理：
+		将vlan加入到实例中，基于实例将本该使用vlan1进行转发的流量（此时vlan1链路因为根路径消费大于其他vlan链路被discarding）
+		转移到处于forwarding状态的实例（包含其他vlan）中进行转发，保障业务畅通。这就是与RSTP（不能基于vlan选择性的堵塞花费
+		大的链路，因为堵了以后就会使该条链路的业务中断）不同，MSTP可以基于vlan(已经将其加入到了实例)堵塞花费大的链路。
+		
+		
+MST Region：具有相同实例的设备会组成一个域。
+IST：在MST Region中独立运行生成的生成树叫内部生成树（Internal Spanning-Tree）.
+CST：每个MST Region相当于一颗小生成树，当很多个MST Region通过生成树算法运算以后，结合成一个大的生成树，
+就叫CST（Common Spanning Tree）。
+		
+		
+		
+		
 		
 	注：STP、RSTP是基于端口的，而MSTP是基于实例（instance）的。每一个实例（多个VLAN的一个集合，通过
 	多个vlan捆绑到一个实例可以节省资源开销）就是一个小生成树，多个实例按照生成树生成的方式再组合成一棵大的生成树。
