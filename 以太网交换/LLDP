@@ -1,0 +1,49 @@
+LLDP:
+	LLDP（Link Layer Discovery Protocol，链路层发现协议）是由IEEE 802.1AB定义的一种链路层
+	发现协议。通过LLDP协议能够进行拓扑的发现及掌握拓扑的变化情况。
+	
+作用：
+	1、网络管理系统可以通过LLDP来了解拓扑连接情况。
+	2、利用LLDP进行错误检测，网络拓扑中相互连接的两台设备如果配置信息不想符合会提示错误。
+	
+LLDP原理：
+	1、LLDP协议会将设备的本地信息组织成TLV(Type/Length/Vlaue)的格式封装到LLDPDU中去，然后
+	发送给邻居设备，邻居设备会将收到的LLDPDU信息以MIB（Management Information Base）的形式
+	存储起来。同样上诉操作与设备互为邻居的邻居设备也会做。这样设备开启SNMP协议。网络管理系
+	统就可以访问设备存储的LLDPDU信息，了解和掌握拓扑连接信息。
+	
+LLDPDU：
+	指封装在LLDP报文中的协议数据单元，由一系列的TLV组成，这些TLV中包含了三个固定的TLV，
+	加上一系列可选的TLVs和一个End of TLV。三个固定的TLV包括chassis ID、Port ID、Time To
+	Live ,这三个固定的TLV是每个LLDPDU帧必须拥有的。此外，还有End of TLV这个TLV也是必须
+	携带的。
+		
+LLDP报文的两种封装格式：
+	1、Ethernet ||
+	    封装格式：destination address + source address + Ethertype + LLDPDU + FCS
+		destination address：目的MAC地址，为LLDP的组播地址 01-80-C2-00-00-0E。
+		source address：源MAC地址，为设备的端口MAC地址
+		Ethertype：以太网类型，为 0x88CC。
+		LLDPDU：LLDP协议数据单元。
+		FCS：帧校验序列。
+		
+	2、SNAP(Subnetwork Access Protocol,子网访问协议)
+		封装格式：destination address + source address + SNAP-encoded Ethertype + LLDPDU + FCS
+		destination address：目的MAC地址，为LLDP的组播地址 01-80-C2-00-00-0E。
+		source address：源MAC地址，为设备的端口MAC地址
+		SNAP-encoded Ethertype：SNAP封装的以太网类型，为AA-AA-03-00-00-00-88-CC。
+		LLDPDU：LLDP协议数据单元。
+		FCS：帧校验序列。
+		
+TLV分类：
+	1、基本管理TLV
+		基本管理TLV是一组用于网络管理的基础TLV集合，包含了固定TLV和可选TLV，固定TLV是指必须包含
+		在LLDPDU中的发布的TLV，可选TLV是指根据需要确定是否包含在LLDPDU中发布的TLV。
+	
+	2、组织定义TLV
+		组织定义 TLV 是由标准组织和其它机构定义的 TLV，用于通告设备的特定信息。
+		
+LLDP三种工作模式
+	1、TxRx：既发送也接收 LLDPDU。
+	2、Rx Only：只接收不发送 LLDPDU。
+	3、Tx Only：只发送不接收 LLDPDU。
